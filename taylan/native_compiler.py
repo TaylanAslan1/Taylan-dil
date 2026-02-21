@@ -320,6 +320,8 @@ def _web_runtime_lines() -> List[str]:
         "",
         "        if (strcmp(method, \"GET\") == 0 && (strcmp(path, \"/\") == 0 || strcmp(path, \"/index.html\") == 0)) {",
         "            _yanit_html(cfd, html_path);",
+        "        } else if (strcmp(method, \"GET\") == 0 && (strcmp(path, \"/dashboard\") == 0 || strcmp(path, \"/dashboard.html\") == 0)) {",
+        "            _yanit_html(cfd, \"dashboard.html\");",
         "        } else if (strcmp(method, \"GET\") == 0 && strcmp(path, \"/health\") == 0) {",
         "            _yanit_yaz(cfd, 200, \"text/plain; charset=utf-8\", \"ok\");",
         "        } else if (strcmp(method, \"POST\") == 0 && (strcmp(path, \"/api/register\") == 0 || strcmp(path, \"/api/login\") == 0)) {",

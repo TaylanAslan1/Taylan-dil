@@ -127,6 +127,10 @@
       });
       const data = await res.json();
       msg.textContent = data.message || "Bilinmeyen cevap";
+      if (path === "/api/login" && data.ok) {
+        sessionStorage.setItem("taylan_user", body.username);
+        window.location.href = "/dashboard.html";
+      }
     }
 
     document.getElementById("registerBtn").addEventListener("click", async () => {
