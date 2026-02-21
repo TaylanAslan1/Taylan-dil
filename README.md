@@ -199,6 +199,8 @@ Render notu:
 `native_web.tay` dosyasi, PORT ortamini okuyup HTTP server baslatir:
 - `GET /` ve `GET /index.html` -> `index.html`
 - `GET /health` -> `ok`
+- `POST /api/register` -> JSON `{ "username", "password" }`
+- `POST /api/login` -> JSON `{ "username", "password" }`
 
 Linux binary uret (WSL/Ubuntu):
 `python3 -m taylan.cli native native_web.tay -o uygulama --cc gcc`
