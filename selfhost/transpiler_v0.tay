@@ -1,0 +1,690 @@
+﻿dahil "tcore"
+
+fonksiyon chr(metin, idx):
+    don metin_alt(metin, idx, idx + 1)
+bitti
+
+fonksiyon char_is_digit(c):
+    don c >= "0" ve c <= "9"
+bitti
+
+fonksiyon char_is_alpha(c):
+    eger c == "_":
+        don dogru
+    bitti
+    eger c >= "a" ve c <= "z":
+        don dogru
+    bitti
+    eger c >= "A" ve c <= "Z":
+        don dogru
+    bitti
+    don yanlis
+bitti
+
+fonksiyon char_is_alnum(c):
+    don char_is_alpha(c) veya char_is_digit(c)
+bitti
+
+fonksiyon char_is_space(c):
+    don c == " " veya c == tab_karakteri() veya c == cr_karakteri()
+bitti
+
+fonksiyon idx_yeni():
+    r = dizi_olustur()
+    dizi_ekle(r, 0)
+    don r
+bitti
+
+fonksiyon idx_get(r):
+    don dizi_getir(r, 0)
+bitti
+
+fonksiyon idx_set(r, v):
+    dizi_yaz(r, 0, v)
+    don v
+bitti
+
+fonksiyon idx_inc(r):
+    v = idx_get(r) + 1
+    dizi_yaz(r, 0, v)
+    don v
+bitti
+
+fonksiyon tok_tur(tipler, i):
+    eger i >= dizi_uzunluk(tipler):
+        don "EOF"
+    bitti
+    don dizi_getir(tipler, i)
+bitti
+
+fonksiyon tok_deger(degerler, i):
+    eger i >= dizi_uzunluk(degerler):
+        don ""
+    bitti
+    don dizi_getir(degerler, i)
+bitti
+
+fonksiyon simdiki_tur(tipler, r):
+    don tok_tur(tipler, idx_get(r))
+bitti
+
+fonksiyon simdiki_deger(degerler, r):
+    don tok_deger(degerler, idx_get(r))
+bitti
+
+fonksiyon esles_deger(degerler, r, deger):
+    eger simdiki_deger(degerler, r) == deger:
+        idx_inc(r)
+        don dogru
+    bitti
+    don yanlis
+bitti
+
+fonksiyon node_num(v):
+    n = dizi_olustur()
+    dizi_ekle(n, "num")
+    dizi_ekle(n, v)
+    don n
+bitti
+
+fonksiyon node_str(v):
+    n = dizi_olustur()
+    dizi_ekle(n, "str")
+    dizi_ekle(n, v)
+    don n
+bitti
+
+fonksiyon node_bool(v):
+    n = dizi_olustur()
+    dizi_ekle(n, "bool")
+    dizi_ekle(n, v)
+    don n
+bitti
+
+fonksiyon node_var(v):
+    n = dizi_olustur()
+    dizi_ekle(n, "var")
+    dizi_ekle(n, v)
+    don n
+bitti
+
+fonksiyon node_call(name, args):
+    n = dizi_olustur()
+    dizi_ekle(n, "call")
+    dizi_ekle(n, name)
+    dizi_ekle(n, args)
+    don n
+bitti
+
+fonksiyon node_un(op, expr):
+    n = dizi_olustur()
+    dizi_ekle(n, "un")
+    dizi_ekle(n, op)
+    dizi_ekle(n, expr)
+    don n
+bitti
+
+fonksiyon node_bin(op, left, right):
+    n = dizi_olustur()
+    dizi_ekle(n, "bin")
+    dizi_ekle(n, op)
+    dizi_ekle(n, left)
+    dizi_ekle(n, right)
+    don n
+bitti
+
+fonksiyon op_cmp_mi(op):
+    don op == "==" veya op == "!=" veya op == "<" veya op == ">" veya op == "<=" veya op == ">="
+bitti
+
+fonksiyon op_py(op):
+    eger op == "veya":
+        don "or"
+    bitti
+    eger op == "ve":
+        don "and"
+    bitti
+    eger op == "degil":
+        don "not"
+    bitti
+    don op
+bitti
+
+fonksiyon parse_ifade(tipler, degerler, r):
+    don parse_or(tipler, degerler, r)
+bitti
+
+fonksiyon parse_or(tipler, degerler, r):
+    left = parse_and(tipler, degerler, r)
+    dongu simdiki_deger(degerler, r) == "veya":
+        idx_inc(r)
+        right = parse_and(tipler, degerler, r)
+        left = node_bin("veya", left, right)
+    bitti
+    don left
+bitti
+
+fonksiyon parse_and(tipler, degerler, r):
+    left = parse_not(tipler, degerler, r)
+    dongu simdiki_deger(degerler, r) == "ve":
+        idx_inc(r)
+        right = parse_not(tipler, degerler, r)
+        left = node_bin("ve", left, right)
+    bitti
+    don left
+bitti
+
+fonksiyon parse_not(tipler, degerler, r):
+    eger simdiki_deger(degerler, r) == "degil":
+        idx_inc(r)
+        expr = parse_not(tipler, degerler, r)
+        don node_un("degil", expr)
+    bitti
+    don parse_cmp(tipler, degerler, r)
+bitti
+
+fonksiyon parse_cmp(tipler, degerler, r):
+    left = parse_topla(tipler, degerler, r)
+    op = simdiki_deger(degerler, r)
+    dongu op_cmp_mi(op):
+        idx_inc(r)
+        right = parse_topla(tipler, degerler, r)
+        left = node_bin(op, left, right)
+        op = simdiki_deger(degerler, r)
+    bitti
+    don left
+bitti
+
+fonksiyon parse_topla(tipler, degerler, r):
+    left = parse_carp(tipler, degerler, r)
+    op = simdiki_deger(degerler, r)
+    dongu op == "+" veya op == "-":
+        idx_inc(r)
+        right = parse_carp(tipler, degerler, r)
+        left = node_bin(op, left, right)
+        op = simdiki_deger(degerler, r)
+    bitti
+    don left
+bitti
+
+fonksiyon parse_carp(tipler, degerler, r):
+    left = parse_unary(tipler, degerler, r)
+    op = simdiki_deger(degerler, r)
+    dongu op == "*" veya op == "/" veya op == "%":
+        idx_inc(r)
+        right = parse_unary(tipler, degerler, r)
+        left = node_bin(op, left, right)
+        op = simdiki_deger(degerler, r)
+    bitti
+    don left
+bitti
+
+fonksiyon parse_unary(tipler, degerler, r):
+    op = simdiki_deger(degerler, r)
+    eger op == "+" veya op == "-":
+        idx_inc(r)
+        expr = parse_unary(tipler, degerler, r)
+        don node_un(op, expr)
+    bitti
+    don parse_primary(tipler, degerler, r)
+bitti
+
+fonksiyon parse_primary(tipler, degerler, r):
+    tur = simdiki_tur(tipler, r)
+    deger = simdiki_deger(degerler, r)
+
+    eger tur == "NUM":
+        idx_inc(r)
+        don node_num(deger)
+    bitti
+
+    eger tur == "STR":
+        idx_inc(r)
+        don node_str(deger)
+    bitti
+
+    eger tur == "ID":
+        name = deger
+        idx_inc(r)
+
+        eger name == "dogru":
+            don node_bool("True")
+        bitti
+        eger name == "yanlis":
+            don node_bool("False")
+        bitti
+
+        eger esles_deger(degerler, r, "("):
+            args = dizi_olustur()
+            eger simdiki_deger(degerler, r) != ")":
+                devam = dogru
+                dongu devam:
+                    arg = parse_ifade(tipler, degerler, r)
+                    dizi_ekle(args, arg)
+                    eger esles_deger(degerler, r, ","):
+                        devam = dogru
+                    degilse:
+                        esles_deger(degerler, r, ")")
+                        devam = yanlis
+                    bitti
+                bitti
+            degilse:
+                esles_deger(degerler, r, ")")
+            bitti
+            don node_call(name, args)
+        bitti
+
+        don node_var(name)
+    bitti
+
+    eger esles_deger(degerler, r, "("):
+        expr = parse_ifade(tipler, degerler, r)
+        esles_deger(degerler, r, ")")
+        don expr
+    bitti
+
+    idx_inc(r)
+    don node_var(deger)
+bitti
+
+fonksiyon expr_py_yaz(node):
+    tur = dizi_getir(node, 0)
+
+    eger tur == "num" veya tur == "str" veya tur == "bool":
+        don dizi_getir(node, 1)
+    bitti
+
+    eger tur == "var":
+        don dizi_getir(node, 1)
+    bitti
+
+    eger tur == "call":
+        name = dizi_getir(node, 1)
+        args = dizi_getir(node, 2)
+        py_args = dizi_olustur()
+        i = 0
+        dongu i < dizi_uzunluk(args):
+            dizi_ekle(py_args, expr_py_yaz(dizi_getir(args, i)))
+            i = i + 1
+        bitti
+
+        py_name = name
+        eger py_name == "yazdir":
+            py_name = "print"
+        bitti
+
+        don metin_birlesik(metin_birlesik(py_name, "("), metin_birlesik(metin_birlestir(py_args, ", "), ")"))
+    bitti
+
+    eger tur == "un":
+        op = op_py(dizi_getir(node, 1))
+        right = expr_py_yaz(dizi_getir(node, 2))
+        eger op == "not":
+            don metin_birlesik(metin_birlesik("(not ", right), ")")
+        bitti
+        don metin_birlesik(metin_birlesik("(", op), metin_birlesik(right, ")"))
+    bitti
+
+    eger tur == "bin":
+        op = op_py(dizi_getir(node, 1))
+        left = expr_py_yaz(dizi_getir(node, 2))
+        right = expr_py_yaz(dizi_getir(node, 3))
+        s = metin_birlesik("(", left)
+        s = metin_birlesik(s, " ")
+        s = metin_birlesik(s, op)
+        s = metin_birlesik(s, " ")
+        s = metin_birlesik(s, right)
+        s = metin_birlesik(s, ")")
+        don s
+    bitti
+
+    don "None"
+bitti
+
+fonksiyon ifade_tokenize(expr):
+    tipler = dizi_olustur()
+    degerler = dizi_olustur()
+
+    i = 0
+    n = metin_uzunluk(expr)
+
+    dongu i < n:
+        c = chr(expr, i)
+
+        eger char_is_space(c):
+            i = i + 1
+        degilse:
+            eger char_is_digit(c):
+                j = i
+                devam_num = dogru
+                dongu j < n ve devam_num:
+                    cj = chr(expr, j)
+                    eger char_is_digit(cj) veya cj == ".":
+                        j = j + 1
+                    degilse:
+                        devam_num = yanlis
+                    bitti
+                bitti
+                num = metin_alt(expr, i, j)
+                dizi_ekle(tipler, "NUM")
+                dizi_ekle(degerler, num)
+                i = j
+            degilse:
+                eger c == cift_tirnak():
+                    j = i + 1
+                    tamam = yanlis
+                    dongu j < n ve tamam == yanlis:
+                        cj = chr(expr, j)
+                        eger cj == cift_tirnak():
+                            tamam = dogru
+                        bitti
+                        j = j + 1
+                    bitti
+                    val = metin_alt(expr, i, j)
+                    dizi_ekle(tipler, "STR")
+                    dizi_ekle(degerler, val)
+                    i = j
+                degilse:
+                    eger char_is_alpha(c):
+                        j = i
+                        devam_id = dogru
+                        dongu j < n ve devam_id:
+                            cj = chr(expr, j)
+                            eger char_is_alnum(cj):
+                                j = j + 1
+                            degilse:
+                                devam_id = yanlis
+                            bitti
+                        bitti
+                        word = metin_alt(expr, i, j)
+                        dizi_ekle(tipler, "ID")
+                        dizi_ekle(degerler, word)
+                        i = j
+                    degilse:
+                        iki = ""
+                        eger i + 1 < n:
+                            iki = metin_alt(expr, i, i + 2)
+                        bitti
+
+                        eger iki == "==" veya iki == "!=" veya iki == "<=" veya iki == ">=":
+                            dizi_ekle(tipler, "OP")
+                            dizi_ekle(degerler, iki)
+                            i = i + 2
+                        degilse:
+                            dizi_ekle(tipler, "OP")
+                            dizi_ekle(degerler, c)
+                            i = i + 1
+                        bitti
+                    bitti
+                bitti
+            bitti
+        bitti
+    bitti
+
+    dizi_ekle(tipler, "EOF")
+    dizi_ekle(degerler, "")
+
+    paket = dizi_olustur()
+    dizi_ekle(paket, tipler)
+    dizi_ekle(paket, degerler)
+    don paket
+bitti
+
+fonksiyon py_ifade(ifade):
+    paket = ifade_tokenize(ifade)
+    tipler = dizi_getir(paket, 0)
+    degerler = dizi_getir(paket, 1)
+    r = idx_yeni()
+    ast = parse_ifade(tipler, degerler, r)
+    don expr_py_yaz(ast)
+bitti
+
+fonksiyon atama_index(s):
+    i = 0
+    n = metin_uzunluk(s)
+    paren = 0
+    in_str = 0
+    sonuc = -1
+
+    dongu i < n:
+        c = chr(s, i)
+
+        eger c == cift_tirnak():
+            eger in_str == 1:
+                in_str = 0
+            degilse:
+                in_str = 1
+            bitti
+        degilse:
+            eger in_str == 0:
+                eger c == "(":
+                    paren = paren + 1
+                degilse:
+                    eger c == ")":
+                        paren = paren - 1
+                    degilse:
+                        eger c == "=" ve paren == 0:
+                            sol = ""
+                            sag = ""
+                            eger i > 0:
+                                sol = chr(s, i - 1)
+                            bitti
+                            eger i + 1 < n:
+                                sag = chr(s, i + 1)
+                            bitti
+
+                            eger sol != "=" ve sol != "!" ve sol != "<" ve sol != ">" ve sag != "=":
+                                sonuc = i
+                                i = n
+                            bitti
+                        bitti
+                    bitti
+                bitti
+            bitti
+        bitti
+
+        i = i + 1
+    bitti
+
+    don sonuc
+bitti
+
+fonksiyon girinti_metin(seviye):
+    i = 0
+    s = ""
+    dongu i < seviye:
+        s = metin_birlesik(s, "    ")
+        i = i + 1
+    bitti
+    don s
+bitti
+
+fonksiyon son_iki_nokta_kaldir(s):
+    t = metin_kirp(s)
+    eger metin_biter_mi(t, ":"):
+        don metin_alt(t, 0, metin_uzunluk(t) - 1)
+    bitti
+    don t
+bitti
+
+fonksiyon satir_tipi_ve_icerik(temiz):
+    sonuc = dizi_olustur()
+    tip = "expr"
+    icerik = temiz
+
+    eger metin_basliyor_mu(temiz, "#"):
+        tip = "comment"
+        icerik = temiz
+    degilse:
+        eger temiz == "bitti":
+            tip = "end"
+            icerik = ""
+        degilse:
+            eger metin_basliyor_mu(temiz, "degilse"):
+                tip = "else"
+                icerik = ""
+            degilse:
+                eger metin_basliyor_mu(temiz, "eger "):
+                    tip = "if"
+                    kosul = metin_alt(temiz, 5, metin_uzunluk(temiz))
+                    icerik = son_iki_nokta_kaldir(kosul)
+                degilse:
+                    eger metin_basliyor_mu(temiz, "dongu "):
+                        tip = "while"
+                        kosul = metin_alt(temiz, 6, metin_uzunluk(temiz))
+                        icerik = son_iki_nokta_kaldir(kosul)
+                    degilse:
+                        eger metin_basliyor_mu(temiz, "fonksiyon "):
+                            tip = "func"
+                            imza = metin_alt(temiz, 10, metin_uzunluk(temiz))
+                            icerik = son_iki_nokta_kaldir(imza)
+                        degilse:
+                            eger temiz == "don":
+                                tip = "return"
+                                icerik = ""
+                            degilse:
+                                eger metin_basliyor_mu(temiz, "don "):
+                                    tip = "return"
+                                    icerik = metin_kirp(metin_alt(temiz, 4, metin_uzunluk(temiz)))
+                                degilse:
+                                    eger metin_basliyor_mu(temiz, "dahil "):
+                                        tip = "import"
+                                        icerik = metin_kirp(metin_alt(temiz, 6, metin_uzunluk(temiz)))
+                                    degilse:
+                                        eq_idx = atama_index(temiz)
+                                        eger eq_idx > 0:
+                                            tip = "assign"
+                                            icerik = temiz
+                                        degilse:
+                                            tip = "expr"
+                                            icerik = temiz
+                                        bitti
+                                    bitti
+                                bitti
+                            bitti
+                        bitti
+                    bitti
+                bitti
+            bitti
+        bitti
+    bitti
+
+    dizi_ekle(sonuc, tip)
+    dizi_ekle(sonuc, icerik)
+    don sonuc
+bitti
+
+fonksiyon tokenize(kaynak):
+    satirlar = metin_bol(kaynak, satir_sonu())
+    tipler = dizi_olustur()
+    icerikler = dizi_olustur()
+    i = 0
+
+    dongu i < dizi_uzunluk(satirlar):
+        satir = dizi_getir(satirlar, i)
+        temiz = metin_kirp(satir)
+        eger temiz != "":
+            parca = satir_tipi_ve_icerik(temiz)
+            dizi_ekle(tipler, dizi_getir(parca, 0))
+            dizi_ekle(icerikler, dizi_getir(parca, 1))
+        bitti
+        i = i + 1
+    bitti
+
+    sonuc = dizi_olustur()
+    dizi_ekle(sonuc, tipler)
+    dizi_ekle(sonuc, icerikler)
+    don sonuc
+bitti
+
+fonksiyon satir_ekle(cikti, girinti, icerik):
+    satir = metin_birlesik(girinti_metin(girinti), icerik)
+    dizi_ekle(cikti, satir)
+    don 0
+bitti
+
+fonksiyon blok_derle(tipler, icerikler, baslangic, girinti, cikti):
+    i = baslangic
+    n = dizi_uzunluk(tipler)
+
+    dongu i < n:
+        tip = dizi_getir(tipler, i)
+        icerik = dizi_getir(icerikler, i)
+
+        eger tip == "end":
+            don i + 1
+        degilse:
+            eger tip == "else":
+                don i
+            degilse:
+                eger tip == "comment":
+                    satir_ekle(cikti, girinti, icerik)
+                    i = i + 1
+                degilse:
+                    eger tip == "if":
+                        satir_ekle(cikti, girinti, metin_birlesik(metin_birlesik("if ", py_ifade(icerik)), ":"))
+                        i = blok_derle(tipler, icerikler, i + 1, girinti + 1, cikti)
+                        eger i < n:
+                            sonraki_tip = dizi_getir(tipler, i)
+                            eger sonraki_tip == "else":
+                                satir_ekle(cikti, girinti, "else:")
+                                i = blok_derle(tipler, icerikler, i + 1, girinti + 1, cikti)
+                            bitti
+                        bitti
+                    degilse:
+                        eger tip == "while":
+                            satir_ekle(cikti, girinti, metin_birlesik(metin_birlesik("while ", py_ifade(icerik)), ":"))
+                            i = blok_derle(tipler, icerikler, i + 1, girinti + 1, cikti)
+                        degilse:
+                            eger tip == "func":
+                                satir_ekle(cikti, girinti, metin_birlesik(metin_birlesik("def ", icerik), ":"))
+                                i = blok_derle(tipler, icerikler, i + 1, girinti + 1, cikti)
+                            degilse:
+                                eger tip == "return":
+                                    eger icerik == "":
+                                        satir_ekle(cikti, girinti, "return")
+                                    degilse:
+                                        satir_ekle(cikti, girinti, metin_birlesik("return ", py_ifade(icerik)))
+                                    bitti
+                                degilse:
+                                    eger tip == "import":
+                                        satir_ekle(cikti, girinti, metin_birlesik("# include ", icerik))
+                                    degilse:
+                                        eger tip == "assign":
+                                            eq_idx = atama_index(icerik)
+                                            sol = metin_kirp(metin_alt(icerik, 0, eq_idx))
+                                            sag = metin_kirp(metin_alt(icerik, eq_idx + 1, metin_uzunluk(icerik)))
+                                            py = metin_birlesik(metin_birlesik(sol, " = "), py_ifade(sag))
+                                            satir_ekle(cikti, girinti, py)
+                                        degilse:
+                                            satir_ekle(cikti, girinti, py_ifade(icerik))
+                                        bitti
+                                    bitti
+                                bitti
+                                i = i + 1
+                            bitti
+                        bitti
+                    bitti
+                bitti
+            bitti
+        bitti
+    bitti
+
+    don i
+bitti
+
+fonksiyon selfhost_derle(girdi_yolu, cikti_yolu):
+    kaynak = dosya_oku(girdi_yolu)
+    paket = tokenize(kaynak)
+    tipler = dizi_getir(paket, 0)
+    icerikler = dizi_getir(paket, 1)
+
+    cikti_satirlar = dizi_olustur()
+    dizi_ekle(cikti_satirlar, "# generated by taylan selfhost transpiler v2")
+    dizi_ekle(cikti_satirlar, "")
+    blok_derle(tipler, icerikler, 0, 0, cikti_satirlar)
+
+    python_kodu = metin_birlestir(cikti_satirlar, satir_sonu())
+    dosya_yaz(cikti_yolu, python_kodu)
+    don cikti_yolu
+bitti

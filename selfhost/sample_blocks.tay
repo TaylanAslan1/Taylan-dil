@@ -1,0 +1,13 @@
+fonksiyon topla(a, b):
+    don a + b
+bitti
+
+x = 0
+top = 0
+
+dongu x < 4:
+    top = top + topla(x, 1)
+    x = x + 1
+bitti
+
+yazdir("top:", top)

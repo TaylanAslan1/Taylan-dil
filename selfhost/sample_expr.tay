@@ -1,0 +1,12 @@
+fonksiyon kare(a):
+    don a * a
+bitti
+
+x = 3
+y = kare(x + 2) * 2
+
+eger (y > 10 ve degil (x == 0)) veya y == 0:
+    yazdir("ok", y)
+degilse:
+    yazdir("no")
+bitti

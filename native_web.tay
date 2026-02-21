@@ -1,0 +1,5 @@
+dahil "tweb"
+
+port = port_oku(8080)
+yazdir("native web port:", port)
+tweb_baslat(port, "index.html")

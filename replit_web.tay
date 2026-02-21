@@ -1,0 +1,5 @@
+dahil "tconfig"
+dahil "tweb"
+
+port = cfg_cev("PORT", "8080")
+tweb_baslat("0.0.0.0", port, "index.html", "db/users.sqlite", "users")

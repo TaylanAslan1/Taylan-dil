@@ -1,0 +1,17 @@
+fonksiyon kare(a):
+    don a * a
+bitti
+
+x = 0
+toplam = 0
+
+dongu x < 5:
+    toplam = toplam + kare(x)
+    x = x + 1
+bitti
+
+eger toplam > 10:
+    yazdir("toplam", toplam)
+degilse:
+    yazdir("kucuk", toplam)
+bitti

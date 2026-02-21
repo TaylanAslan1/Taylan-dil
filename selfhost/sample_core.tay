@@ -1,0 +1,10 @@
+x = 4
+y = 6
+sonuc = x + y
+yazdir("sonuc:", sonuc)
+
+eger sonuc > 5:
+    yazdir("buyuk")
+degilse:
+    yazdir("kucuk")
+bitti

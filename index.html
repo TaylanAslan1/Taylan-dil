@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Taylan Web</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f3f7fb;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --primary: #0b6bcb;
+      --primary-hover: #0858a6;
+      --border: #dbe4ee;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      background: linear-gradient(180deg, #eef4fb 0%, #f8fbff 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+    .card {
+      width: 100%;
+      max-width: 520px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 24px;
+    }
+    p {
+      margin: 0 0 16px;
+      color: var(--muted);
+    }
+    .grid {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    label {
+      font-size: 14px;
+      color: var(--muted);
+    }
+    input {
+      width: 100%;
+      padding: 11px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      font-size: 15px;
+    }
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    button {
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 14px;
+      cursor: pointer;
+      background: var(--primary);
+      color: #fff;
+    }
+    button:hover { background: var(--primary-hover); }
+    #msg {
+      margin-top: 14px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: #eef6ff;
+      color: #083b72;
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>Taylan Auth Demo</h1>
+    <p>Bu sayfa, Taylan dili ile çalışan backend'e kayıt ve giriş isteği gönderir.</p>
+
+    <div class="grid">
+      <label for="username">Kullanıcı Adı</label>
+      <input id="username" type="text" placeholder="ornek_kullanici">
+    </div>
+    <div class="grid">
+      <label for="password">Şifre</label>
+      <input id="password" type="password" placeholder="******">
+    </div>
+
+    <div class="actions">
+      <button id="registerBtn" type="button">Kayıt Ol</button>
+      <button id="loginBtn" type="button">Giriş Yap</button>
+    </div>
+
+    <div id="msg">Hazır.</div>
+  </main>
+
+  <script>
+    const msg = document.getElementById("msg");
+
+    function payload() {
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+      return { username, password };
+    }
+
+    async function callApi(path) {
+      const body = payload();
+      const res = await fetch(path, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+      msg.textContent = data.message || "Bilinmeyen cevap";
+    }
+
+    document.getElementById("registerBtn").addEventListener("click", async () => {
+      try {
+        await callApi("/api/register");
+      } catch (e) {
+        msg.textContent = "Sunucuya bağlanılamadı.";
+      }
+    });
+
+    document.getElementById("loginBtn").addEventListener("click", async () => {
+      try {
+        await callApi("/api/login");
+      } catch (e) {
+        msg.textContent = "Sunucuya bağlanılamadı.";
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+﻿dahil "tsql"
+
+sql_db_olustur("db")
+sql_tablo_olustur("db", "kisiler", "ad,yas")
+sql_ekle("db", "kisiler", "Ali,25")
+sql_ekle("db", "kisiler", "Ayse,30")
+yazdır(sql_sec("db", "kisiler"))

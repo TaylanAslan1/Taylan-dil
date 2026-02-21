@@ -1,0 +1,15 @@
+﻿fonksiyon topla(a, b):
+    dön a + b
+bitti
+
+x = 5
+y = 7
+sonuc = topla(x, y)
+
+yazdır("sonuç:", sonuc)
+
+eğer sonuc > 10:
+    yazdır("büyük")
+değilse:
+    yazdır("küçük veya eşit")
+bitti
